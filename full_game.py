@@ -302,26 +302,24 @@ def hard_move():
             # set position equal to computer move to evaluate strength of position
             positions[k] == 2
             # call min_max function in order to get score of current iteration
-            score = min_max(positions, 0, True)
+            score = min_max(positions, True)
             # set position back to unoccupied so board is not changed prematurely
             positions[k] = 0
             # not reaching here, means k_score is not more than best score
             # if k_score is bigger than the previous best, this is now the best move, replace the two
-            if score is not None:
-                if score > best_score:
-                    best_score = score
-                    best_move = k
+            if score > best_score:
+                best_score = score
+                best_move = k
     
     # return best_move for use in hard() function
     print()
     print("Thinking Finished") 
     print() 
-    return best_move
+    return int(best_move)
     
 
-
 # recursive min_max function returns score of moves 
-def min_max(board, depth, maxing):
+def min_max(board, maxing):
     global winner
     global positions
     # base cases
@@ -345,7 +343,7 @@ def min_max(board, depth, maxing):
                 # set each of these positions to the computers move
                 positions[k] = 2
                 # recursively call this function with the new board, and set maxing to false so the next iteration will be minimizing
-                score = min_max(positions, 0, False)
+                score = min_max(positions, False)
                 # set position back to 0 as to not disturb the board before a move is played
                 winner = None
                 positions[k] = 0
@@ -353,6 +351,7 @@ def min_max(board, depth, maxing):
                 if score is not None:
                     if score > best_score:
                         best_score = score
+        return best_score
     # if trying to minimize score to find opponents best move do the following:
     else:
         # set the best score to an absurdly high number to be replaced by lower numbers
@@ -365,7 +364,7 @@ def min_max(board, depth, maxing):
                 # if position k is open, mark it as x
                 positions[k] = 1
                 # recursively call this function with the new board and set maxing to true so the next iteration will be maximizing
-                score = min_max(positions, 0, True)
+                score = min_max(positions, True)
                 # set position of k back to 0 so that it does not change the board prior to making a move
                 winner = None
                 positions[k] = 0
@@ -374,7 +373,7 @@ def min_max(board, depth, maxing):
                     if score < best_score:
                         best_score = score
         # after iterating through all the possible game states, return the best score
-        return best_score
+        return int(best_score)
 
 
 # hard mode computer with perfect moves via min_max
@@ -420,25 +419,31 @@ def hard():
                         if pos == (2,2):
                             pos = 8
                         # if player one moves set corresponding position to 1 as long as move isnt already taken, for player to set to 2
-                        if player and not check_win() and not check_tie(): 
+                        if not check_win() and not check_tie(): 
                             if not record.count(pos) > 0:
                                 positions[pos] = 1
                                 record.append(pos)
-                                #sel.pop(sel.index(pos))
-                                player = False
+                                print("code got to here")
+                                comp = hard_move()
+                                positions[comp] = 2
+                                record.append(comp)
+                                print(positions)
+                                print("this is the computer move: ", comp)
+                                print("code got all the way down here")
                             else:
                                 print("Not a valid move")
-                        else:
+                        elif check_win or check_tie():
                             run = False
-                    if not player and not check_win() and not check_tie():
-                        pos = hard_move()
-                        positions[pos] = 2
-                        record.append(pos)
-                        #sel.pop(sel.index(pos))
-                        player = True
-                        if check_win() or check_tie():
-                            run = False
-                    print(positions)
+                        # if not player and not check_win() and not check_tie():
+                        #     print("here is the move im thinking of: ", hard_move())
+                        #     pos = hard_move()
+                        #     positions[pos] = 2
+                        #     record.append(pos)
+                        #     #sel.pop(sel.index(pos))
+                        #     player = True
+                        #     if check_win() or check_tie():
+                        #         run = False
+                        # print(positions)
         set_window()
     reset_game()
     multi = False
