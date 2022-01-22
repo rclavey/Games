@@ -329,14 +329,16 @@ def hard():
                             positions[move] = 1
                             if check_win(move, positions) or check_tie(move, positions):
                                 run = False
+                                return
                             player = False
                         else:
                             print("Not a valid move")
-                    else:
+                    if not player:
                         comp = hard_move(positions)
                         positions[comp] = 2
                         if check_win(comp, positions) or check_tie(comp, positions):
                             run = False
+                            return
                         player = True
                         print("this is the computer move: ", comp)
                         
