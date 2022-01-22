@@ -90,45 +90,46 @@ def set_window():
 
 
 # check wins for x
-def check_x(move, positions):
+def check_x(move: int, positions: list):
     # get the col the previous move was in
     c = move % 3
     r = move // 3
     # check that col to see if they are all x
-    for i in range(len(positions)):
-        if i % 3 == c and positions[c] == 1 and positions[c + 3] == 1 and positions[c + 6] == 1:
-            return True
-    for i in range(len(positions)):
-        if i // 3 == r and positions[r * 3] == 1 and positions[(r * 3) + 1] == 1 and positions[(r * 3) + 2] == 1:
-            return True
-    if positions[0] == positions[4] and positions[4] == positions[8] and positions[0] == 1:
+    if positions[c] == 1 and positions[c + 3] == 1 and positions[c + 6] == 1:
         return True
-    if positions[2] == positions[4] and positions[4] == positions[6] and positions[2] == 1:
+    # check rows to see if they are all x
+    elif positions[r * 3] == 1 and positions[(r * 3) + 1] == 1 and positions[(r * 3) + 2] == 1:
+        return True
+    # check diags to see if they are all x
+    elif positions[0] == positions[4] and positions[4] == positions[8] and positions[0] == 1:
+        return True
+    elif positions[2] == positions[4] and positions[4] == positions[6] and positions[2] == 1:
         return True
     return False
 
 
-# check wins for y
-def check_y(move, positions):
+# check wins for o
+def check_o(move: int, positions: list):
         # get the col the previous move was in
     c = move % 3
     r = move // 3
-    # check that col to see if they are all x
-    for i in range(len(positions)):
-        if i % 3 == c and positions[c] == 2 and positions[c + 3] == 2 and positions[c + 6] == 2:
-            return True
-    for i in range(len(positions)):
-        if i // 3 == r and positions[r * 3] == 2 and positions[(r * 3) + 1] == 2 and positions[(r * 3) + 2] == 2:
-            return True
-    if positions[0] == positions[4] and positions[4] == positions[8] and positions[0] == 2:
+    # check all cols to see if they are o
+    if positions[c] == 2 and positions[c + 3] == 2 and positions[c + 6] == 2:
         return True
-    if positions[2] == positions[4] and positions[4] == positions[6] and positions[2] == 2:
+    # check all rows to see if they are o
+    elif positions[r * 3] == 2 and positions[(r * 3) + 1] == 2 and positions[(r * 3) + 2] == 2:
+        return True
+    # check diags to see if they are o
+    elif positions[0] == positions[4] and positions[4] == positions[8] and positions[0] == 2:
+        return True
+    elif positions[2] == positions[4] and positions[4] == positions[6] and positions[2] == 2:
         return True
     return False
 
+
 # check for a win condition
-def check_win(move, positions):
-    return check_x(move, positions) or check_y(move, positions)
+def check_win(move: int, positions: list):
+    return check_x(move, positions) or check_o(move, positions)
 
 
 # reset game when over
@@ -145,7 +146,7 @@ def reset_game():
 
 
 # check for a tie
-def check_tie(move, positions):
+def check_tie(move: int, positions: list):
     if (positions[0] and positions[1] and positions[2] and positions[3] and positions[4] and positions[5] and positions[6] and positions[7] and positions[8] != 0) and not check_win(move, positions):
         #print("Tie Game")
         return True
@@ -215,15 +216,17 @@ def hard_move(positions):
     # set best score absurdly low and set best move to a place holder
     best_score = -1000
     best_move = -1
+    a: list = []
     # iterate through all positions
+    print(positions)
     for k in range(len(positions)):
         # only calculate for positions that are empty
         if positions[k] == 0:
             # set position equal to computer move to evaluate strength of position
-            positions[k] == 2
+            positions[k] = 2
             # call min_max function in order to get score of current iteration
-            score: int = min_max(positions, k, True)
-            print("the score is:", score, "for position: ", k)
+            score = min_max(positions, k, 1, True)
+            print("this is the score: ", score, "of position: ", k)
             # set position back to unoccupied so board is not changed prematurely
             positions[k] = 0
             # not reaching here, means k_score is not more than best score
@@ -231,28 +234,34 @@ def hard_move(positions):
             if score > best_score:
                 best_score = score
                 best_move = k
-    
+                a: list = []
+                a.append(best_move)
+            elif score == best_move:
+                a.append(k)
     # return best_move for use in hard() function
-    print()
+    print(a)
     print("Thinking Finished") 
     print() 
-    return best_move
-    
+    return int(random.choice(a))
+
 
 # recursive min_max function returns score of moves 
-def min_max(positions: list, move: int, maxing: bool):
+def min_max(positions: list, move: int, depth: int, maxing: bool):
     # base cases
     # if winner is x, which is the player, return -1
     if check_x(move, positions):
-        return -1
+        #print("1 won after ", depth, "turns")
+        return -1.0 * depth
     # if winner is o, which is the computer, return 1
-    elif check_y(move, positions):
-        return 1
+    elif check_o(move, positions):
+        #print("2 won after ", depth, "turns")
+        return 1.0 / depth
     # if game is a tie, return 0
     elif check_tie(move, positions):
-        return 0
+        #print("game is a tie after ", depth, "turns")
+        return 0.0
     # if trying to maximize score to find computers best move do the following:
-    elif maxing:
+    if maxing:
         # set the best score to an absurdly low number
         best_score = -1000
         # iterate through all the positions in the game
@@ -260,9 +269,10 @@ def min_max(positions: list, move: int, maxing: bool):
             # only look at positions which are not alrady taken
             if positions[k] == 0:
                 # set each of these positions to the computers move
-                positions[k] = 2
+                positions[k] = 1
                 # recursively call this function with the new board, and set maxing to false so the next iteration will be minimizing
-                score: int = min_max(positions, k, False)
+                score = min_max(positions, k, (depth + 1), False)
+                #print(positions)
                 # set position back to 0 as to not disturb the board before a move is played
                 positions[k] = 0
                 # if the score for k is better than the current best score, replace it
@@ -277,16 +287,17 @@ def min_max(positions: list, move: int, maxing: bool):
             # only do calculations for positions that are open
             if positions[k] == 0:
                 # if position k is open, mark it as x
-                positions[k] = 1
+                positions[k] = 2
                 # recursively call this function with the new board and set maxing to true so the next iteration will be maximizing
-                score: int = min_max(positions, k, True)
+                score = min_max(positions, k, (depth + 1), True)
+                #print(positions)
                 # set position of k back to 0 so that it does not change the board prior to making a move
                 positions[k] = 0
                 # if the score of k is lower than the best score, replace the best score with k
                 if score < best_score:
                     best_score = score
     # after iterating through all the possible game states, return the best score
-    return best_score
+    return float(best_score)
 
 
 # hard mode computer with perfect moves via min_max
@@ -318,14 +329,17 @@ def hard():
                             positions[move] = 1
                             if check_win(move, positions) or check_tie(move, positions):
                                 run = False
-                            comp = hard_move(positions)
-                            positions[comp] = 2
-                            if check_win(comp, positions) or check_tie(comp, positions):
-                                run = False
-                            print(positions)
-                            print("this is the computer move: ", comp)
+                            player = False
                         else:
                             print("Not a valid move")
+                    else:
+                        comp = hard_move(positions)
+                        positions[comp] = 2
+                        if check_win(comp, positions) or check_tie(comp, positions):
+                            run = False
+                        player = True
+                        print("this is the computer move: ", comp)
+                        
         set_window()
     reset_game()
     multi = False
