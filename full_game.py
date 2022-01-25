@@ -215,8 +215,9 @@ def easy_move():
 def hard_move(positions):
     # set best score absurdly low and set best move to a place holder
     best_score = -1000
-    best_move = -1
+    best_move = 9
     a: list = []
+    names = ["top left", "top mid", "top right", "mid left", "mid mid", "mid right", "bottom left", "bottom mid", "bottom right"]
     # iterate through all positions
     print(positions)
     for k in range(len(positions)):
@@ -226,7 +227,7 @@ def hard_move(positions):
             positions[k] = 2
             # call min_max function in order to get score of current iteration
             score = min_max(positions, k, 1, True)
-            print("this is the score: ", score, "of position: ", k)
+            print(score, "is the score of ", names[k])
             # set position back to unoccupied so board is not changed prematurely
             positions[k] = 0
             # not reaching here, means k_score is not more than best score
@@ -239,7 +240,7 @@ def hard_move(positions):
             elif score == best_move:
                 a.append(k)
     # return best_move for use in hard() function
-    print(a)
+    print("list of all the best moves: ", a)
     print("Thinking Finished") 
     print() 
     return int(random.choice(a))
@@ -263,7 +264,7 @@ def min_max(positions: list, move: int, depth: int, maxing: bool):
     # if trying to maximize score to find computers best move do the following:
     if maxing:
         # set the best score to an absurdly low number
-        best_score = -1000
+        best_score = 1000
         # iterate through all the positions in the game
         for k in range(len(positions)):
             # only look at positions which are not alrady taken
@@ -276,12 +277,12 @@ def min_max(positions: list, move: int, depth: int, maxing: bool):
                 # set position back to 0 as to not disturb the board before a move is played
                 positions[k] = 0
                 # if the score for k is better than the current best score, replace it
-                if score > best_score:
+                if score < best_score:
                     best_score = score
     # if trying to minimize score to find opponents best move do the following:
     else:
         # set the best score to an absurdly high number to be replaced by lower numbers
-        best_score = 1000
+        best_score = -1000
         # iterate through all positions in the game
         for k in range(len(positions)):
             # only do calculations for positions that are open
@@ -294,10 +295,10 @@ def min_max(positions: list, move: int, depth: int, maxing: bool):
                 # set position of k back to 0 so that it does not change the board prior to making a move
                 positions[k] = 0
                 # if the score of k is lower than the best score, replace the best score with k
-                if score < best_score:
+                if score > best_score:
                     best_score = score
     # after iterating through all the possible game states, return the best score
-    return float(best_score)
+    return best_score
 
 
 # hard mode computer with perfect moves via min_max
@@ -329,7 +330,7 @@ def hard():
                             positions[move] = 1
                             if check_win(move, positions) or check_tie(move, positions):
                                 run = False
-                                return
+                                break
                             player = False
                         else:
                             print("Not a valid move")
@@ -338,7 +339,7 @@ def hard():
                         positions[comp] = 2
                         if check_win(comp, positions) or check_tie(comp, positions):
                             run = False
-                            return
+                            break
                         player = True
                         print("this is the computer move: ", comp)
                         
