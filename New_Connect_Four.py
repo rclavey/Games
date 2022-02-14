@@ -1,4 +1,3 @@
-# imports:
 import pygame
 import numpy as np
 import time
@@ -26,8 +25,7 @@ def set_window(positions):
     pygame.draw.rect(WINDOW, BLUE, (50, 50, (WIDTH - 100), (HEIGHT - 100)), width = 0)
     for col in range(7):
         for row in range(6):
-            x = (col + 1) * 100
-            y = (row + 1) * 100
+            x, y = (col + 1) * 100, (row + 1) * 100
             if positions[row][col] == 0:
                 pygame.draw.circle(WINDOW, WHITE, (x, y), CIRC)
             elif positions[row][col] == 1:
@@ -40,40 +38,25 @@ def set_window(positions):
 
 # check red pieces for win conditions
 def check_red(positions):
-    height = len(positions)
-    width = len(positions[0]) 
     # check cols
-    for i in range(width):
-        for j in range(height - 3):
-            # animate (comment out next 5 lines for speed, keep for graphics)
-            x = (i + 1) * 100
-            y = (j + 1) * 100
-            pygame.draw.circle(WINDOW, GREEN, (x, y), CIRC + 10, 15)
-            pygame.display.update()
-            time.sleep(.2)
-            if positions[i][j] == 1 and positions[i - 1][j] == 1 and positions[i - 2][j] == 1 and positions[i - 3][j] == 1:
-                print("Red Wins by col")
+    for row in range(0, 3):
+        for col in range(0, 7):
+            if positions[row][col] == 1 and positions[row + 1][col] == 1 and positions[row + 2][col] == 1 and positions[row + 3][col] == 1:
                 return True
-    return False
-    # check rows
-    for j in range(height):
-        for i in range(width - 3):
-            x = (i + 1) * 100
-            y = (j + 1) * 100
-            if positions[i][j] == 1 and positions[i][j + 1] == 1 and positions[i][j + 2] == 1 and positions[i][j + 3] == 1:
-                print("Red Wins by row")
+    #check rows
+    for row in range(0, 6):
+        for col in range(0, 4):
+            if positions[row][col] == 1 and positions[row][col + 1] == 1 and positions[row][col + 2] == 1 and positions[row][col + 3] == 1:
+                return True
+    #check diags positive
+    for row in range(0, 4):
+        for col in range(3, 7):
+            if positions[row][col] == 1 and positions[row + 1][col - 1] == 1 and positions[row + 2][col - 2] == 1 and positions[row + 3][col - 3] == 1:
                 return True
     # check diags negative
-    for i in range(width - 3):
-        for j in range(3, height):
-            if positions[i][j] == 1 and positions[i + 1][j - 1] == 1 and positions[i + 2][j - 2] == 1 and positions[i + 3][j - 3] == 1:
-                print("Red wins by positive diaganol")
-                return True
-    # check diags positive
-    for i in range(width - 3):
-        for j in range(height - 3):
-            if positions[i][j] == 1 and positions[i + 1][j + 1] == 1 and positions[i + 2][j + 2] == 1 and positions[i + 3][j + 3] == 1:
-                print("Red wins by negative diaganol")
+    for row in range(0, 3):
+        for col in range(0, 4):
+            if positions[row][col] == 1 and positions[row + 1][col + 1] == 1 and positions[row + 2][col + 2] == 1 and positions[row + 3][col + 3] == 1:
                 return True
     return False
 
@@ -81,6 +64,26 @@ def check_red(positions):
 
 # check yellow pieces for win conditions
 def check_yellow(positions):
+        # check cols
+    for row in range(0, 3):
+        for col in range(0, 7):
+            if positions[row][col] == 2 and positions[row + 1][col] == 2 and positions[row + 2][col] == 2 and positions[row + 3][col] == 2:
+                return True
+    #check rows
+    for row in range(0, 6):
+        for col in range(0, 4):
+            if positions[row][col] == 2 and positions[row][col + 1] == 2 and positions[row][col + 2] == 2 and positions[row][col + 3] == 2:
+                return True
+    #check diags positive
+    for row in range(0, 4):
+        for col in range(3, 7):
+            if positions[row][col] == 2 and positions[row + 1][col - 1] == 2 and positions[row + 2][col - 2] == 2 and positions[row + 3][col - 3] == 2:
+                return True
+    # check diags negative
+    for row in range(0, 3):
+        for col in range(0, 4):
+            if positions[row][col] == 2 and positions[row + 1][col + 1] == 2 and positions[row + 2][col + 2] == 2 and positions[row + 3][col + 3] == 2:
+                return True
     return False
 
 
@@ -119,11 +122,10 @@ def move(positions: list, row: int, col: int, i: int):
 
 # main function to execute game
 def main():
-    i = 0
     positions = np.array([[0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0]])
     clock = pygame.time.Clock()
     run = True
-    count = 42
+    count, i = 42, 0
     while run:
         clock.tick(FPS)
         # loop through events
@@ -140,6 +142,7 @@ def main():
                         move(positions, row, col, i)
                         i += 1
                         count -= 1
+                print(positions)
                 if count == 0 and not check_win(positions):
                     print("Tie Game")
                     pygame.quit()
